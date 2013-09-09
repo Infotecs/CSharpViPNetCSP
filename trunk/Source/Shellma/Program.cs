@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ServiceModel;
 using Infotecs.Shellma.Cors;
+using Infotecs.Shellma.Properties;
 using NLog;
 
 namespace Infotecs.Shellma
@@ -18,11 +19,12 @@ namespace Infotecs.Shellma
         /// </summary>
         private static void Main()
         {
+            var serviceAddress = Settings.Default.ServiceAddress;
             log.Debug("Starting...");
             host = new CorsEnabledServiceHost(
-                typeof(ServiceProvider), new[] { new Uri("http://localhost:5030/shellma") });
+                typeof(ServiceProvider), new[] { new Uri(serviceAddress) });
             host.Open();
-            log.Info("Shellma is running. Press any key to stop.");
+            log.Info("Shellma is running on: {0}. Press any key to stop.", serviceAddress);
             Console.ReadKey();
             host.Close();
         }
