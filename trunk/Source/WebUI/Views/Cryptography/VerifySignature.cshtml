@@ -1,0 +1,87 @@
+﻿@model WebUI.Models.ShellmaModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+@using (Html.BeginForm("SignHash", "Cryptography", FormMethod.Post, new {id = "verifyForm"}))
+{
+    @Html.HiddenFor(x => x.Hash)
+    @Html.HiddenFor(x => x.Text)
+    @Html.HiddenFor(x => x.PublicKey)
+    @Html.HiddenFor(x => x.Signature)
+    @Html.HiddenFor(x => x.IsSignatureValid)
+    <div class="page-header">
+        <h1>Проверка подписи</h1>
+    </div>
+    <p class="lead">Проверка подписи данных на открытом ключе</p>
+    <div class="row well">
+        <div class="col-md-2">
+            <h4>Текст</h4>
+        </div>
+        <div class="col-md-8">
+            <h4>
+                @Html.DisplayTextFor(x => x.Text)
+            </h4>
+        </div>
+    </div>
+    <div class="row well">
+        <div class="col-md-2">
+            <h4>Хеш</h4>
+        </div>
+        <div class="col-md-8">
+            <h4>
+                @Html.DisplayTextFor(x => x.Hash)
+            </h4>
+        </div>
+    </div>
+    <div class="row well">
+        <div class="col-md-2">
+            <h4>Открытый ключ</h4>
+        </div>
+        <div class="col-md-8">
+            <h4 style="word-wrap: break-word;">
+                @Html.DisplayTextFor(x => x.PublicKey)
+            </h4>
+        </div>
+    </div>
+    <div class="row well">
+        <div class="col-md-2">
+            <h4>Подпись</h4>
+        </div>
+        <div class="col-md-8">
+            <h4>
+                @Html.DisplayTextFor(x => x.Signature)
+            </h4>
+        </div>
+    </div>
+    
+    var invalidSignature = Model.IsSignatureValid.HasValue ? (Model.IsSignatureValid.Value ? "display: none" : "") : "display: none";
+    var validSignature = Model.IsSignatureValid.HasValue ? (Model.IsSignatureValid.Value ? "" : "display: none") : "display: none";
+    
+    <div class="row">
+        <div class="col-md-4" style="@validSignature">
+            <h4 style="color: green;">Подпись проверена успешно!</h4>
+        </div>
+        <div class="col-md-4" style="@invalidSignature">
+            <h4 style="color: red;">Подпись некорректна!</h4>
+        </div>
+        <div class="col-md-12">
+            <button type="submit" class="btn btn-primary btn-lg" style="float: right; margin-top: 20px">Проверить подпись</button>
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+    $(function() {
+        $("#verifyForm").submit(function () {
+            var signature = $("#Signature").val();
+            var data = $("#Text").val();
+            var publicKey = $("#PublicKey").val();
+            
+            var service = new ShellmaServiceProvider();
+            var isValid = service.VerifySignature(signature, data, publicKey);
+            $('#IsSignatureValid').val(isValid);
+        });
+    });
+</script>

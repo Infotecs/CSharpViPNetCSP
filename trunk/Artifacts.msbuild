@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?> 
+<Project DefaultTargets = "Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+    <Import Project="$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets"/>
+
+    <PropertyGroup>
+        <OutDir Condition="'$(OutDir)'==''">$(MSBuildThisFileDirectory)\Out</OutDir>
+        <Configuration Condition="'$(Configuration)'==''">Release</Configuration>
+        <ArtifactsOutDir Condition="'$(ArtifactsOutDir)'==''">$(OutDir)\$(Configuration)</ArtifactsOutDir>
+    </PropertyGroup>
+
+    <Target Name="Build" DependsOnTargets="Archive" />
+    <Target Name="Rebuild" DependsOnTargets="Clean;Build" />
+    <Target Name="Archive" DependsOnTargets="AddArchiveTasks;DoArchive" />
+
+    <Target Name="AddArchiveTasks">
+        <PropertyGroup>
+             <ProjectOutDir>$(OutDir)\$(Configuration)</ProjectOutDir>
+        </PropertyGroup>
+        <ItemGroup>
+            <ArchiveTask Include="Cryptography">
+                <Inputs>_NON_EXISTENT_FILE_</Inputs>
+                <Files>$(ProjectOutDir)\Cryptography\**\*.*</Files>
+                <Path>$(ProjectOutDir)\Cryptography</Path>
+            </ArchiveTask>
+            <ArchiveTask Include="Shellma">
+                <Inputs>_NON_EXISTENT_FILE_</Inputs>
+                <Files>$(ProjectOutDir)\Shellma\**\*.*</Files>
+                <Path>$(ProjectOutDir)\Shellma</Path>
+            </ArchiveTask>
+        </ItemGroup>
+    </Target>
+  
+    <Target Name="CheckPrerequisites">
+        <MakeDir Directories="$(ArtifactsOutDir)" />
+    </Target>
+
+    <Target Name="Clean">
+        <RemoveDir Directories="$(ArtifactsOutDir)" />
+    </Target>
+
+    <Target Name="DoArchive" DependsOnTargets="CheckPrerequisites"
+            Inputs="%(ArchiveTask.Inputs)"
+            Outputs="$(OutDir)\%(ArchiveTask.Identity).zip">
+        <Message Text="Starting archive distributives %(ArchiveTask.Identity) ..."/>
+        <Message Text="Path %(ArchiveTask.Path)"/>
+        
+        <ItemGroup>
+            <Files Include="%(ArchiveTask.Files)" />
+        </ItemGroup>
+        <Zip Files="@(Files)"
+             WorkingDirectory="%(ArchiveTask.Path)"
+             ZipFileName="$(ArtifactsOutDir)\%(ArchiveTask.Identity).zip" />
+
+        <Message Text="Distributives %(ArchiveTask.Identity) successfully archived"/>
+    </Target>
+</Project>
