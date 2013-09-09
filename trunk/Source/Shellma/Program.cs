@@ -1,5 +1,6 @@
 ﻿using System;
-using System.ServiceModel.Web;
+using System.ServiceModel;
+using Infotecs.Shellma.Cors;
 using NLog;
 
 namespace Infotecs.Shellma
@@ -10,7 +11,7 @@ namespace Infotecs.Shellma
     internal class Program
     {
         private static readonly Logger log = LogManager.GetCurrentClassLogger();
-        private static WebServiceHost host;
+        private static ServiceHost host;
 
         /// <summary>
         ///     Точка входа.
@@ -18,7 +19,8 @@ namespace Infotecs.Shellma
         private static void Main()
         {
             log.Debug("Starting...");
-            host = new WebServiceHost(typeof(ServiceProvider));
+            host = new CorsEnabledServiceHost(
+                typeof(ServiceProvider), new[] { new Uri("http://localhost:5030/shellma") });
             host.Open();
             log.Info("Shellma is running. Press any key to stop.");
             Console.ReadKey();

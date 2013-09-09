@@ -5,7 +5,6 @@ ServiceProxy = function(serviceUrl) {
     this.async = false;
     
     this.invoke = function (method, message, onSuccess, onError) {
-        $.support.cors = true;
         $.ajax({
             url: this.serviceUrl + "/" + method,
             crossDomain: true,

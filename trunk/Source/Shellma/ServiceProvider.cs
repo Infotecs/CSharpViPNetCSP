@@ -7,7 +7,6 @@ using System.ServiceModel.Web;
 using System.Text;
 using Infotecs.Cryptography;
 using Infotecs.ShellmaContracts.DataContracts;
-using Infotecs.ShellmaContracts.ServiceContracts;
 using NLog;
 
 namespace Infotecs.Shellma
