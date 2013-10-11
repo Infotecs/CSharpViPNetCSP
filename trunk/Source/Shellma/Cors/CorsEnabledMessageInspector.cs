@@ -10,7 +10,7 @@ namespace Infotecs.Shellma.Cors
     /// <summary>
     ///     Инспектор сообщений Cors.
     /// </summary>
-    internal class CorsEnabledMessageInspector : IDispatchMessageInspector
+    internal sealed class CorsEnabledMessageInspector : IDispatchMessageInspector
     {
         private readonly List<string> corsEnabledOperationNames;
 
@@ -66,21 +66,23 @@ namespace Infotecs.Shellma.Cors
         public void BeforeSendReply(ref Message reply, object correlationState)
         {
             var origin = correlationState as string;
-            if (origin != null)
+            if (origin == null)
             {
-                HttpResponseMessageProperty httpProp = null;
-                if (reply.Properties.ContainsKey(HttpResponseMessageProperty.Name))
-                {
-                    httpProp = (HttpResponseMessageProperty)reply.Properties[HttpResponseMessageProperty.Name];
-                }
-                else
-                {
-                    httpProp = new HttpResponseMessageProperty();
-                    reply.Properties.Add(HttpResponseMessageProperty.Name, httpProp);
-                }
-
-                httpProp.Headers.Add(CorsConstants.AccessControlAllowOrigin, origin);
+                return;
             }
+            
+            HttpResponseMessageProperty httpProp;
+            if (reply.Properties.ContainsKey(HttpResponseMessageProperty.Name))
+            {
+                httpProp = (HttpResponseMessageProperty)reply.Properties[HttpResponseMessageProperty.Name];
+            }
+            else
+            {
+                httpProp = new HttpResponseMessageProperty();
+                reply.Properties.Add(HttpResponseMessageProperty.Name, httpProp);
+            }
+
+            httpProp.Headers.Add(CorsConstants.AccessControlAllowOrigin, origin);
         }
     }
 }

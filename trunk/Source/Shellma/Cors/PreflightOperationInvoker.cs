@@ -9,7 +9,7 @@ namespace Infotecs.Shellma.Cors
     /// <summary>
     ///     PreflightOperationInvoker.
     /// </summary>
-    internal class PreflightOperationInvoker : IOperationInvoker
+    internal sealed class PreflightOperationInvoker : IOperationInvoker
     {
         private readonly List<string> allowedHttpMethods;
         private readonly string replyAction;

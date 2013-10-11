@@ -9,7 +9,7 @@ namespace Infotecs.Shellma.Cors
     /// <summary>
     ///     Поведение Cors.
     /// </summary>
-    internal class EnableCorsEndpointBehavior : IEndpointBehavior
+    internal sealed class EnableCorsEndpointBehavior : IEndpointBehavior
     {
         /// <summary>
         ///     Implement to pass data at runtime to bindings to support custom behavior.
@@ -37,11 +37,8 @@ namespace Infotecs.Shellma.Cors
         public void ApplyDispatchBehavior(ServiceEndpoint endpoint, EndpointDispatcher endpointDispatcher)
         {
             List<OperationDescription> corsEnabledOperations = endpoint.Contract.Operations
-                                                                       .Where(
-                                                                           o =>
-                                                                               o.Behaviors.Find<CorsEnabledAttribute>()
-                                                                                   != null)
-                                                                       .ToList();
+                .Where(o => o.Behaviors.Find<CorsEnabledAttribute>() != null)
+                .ToList();
             endpointDispatcher.DispatchRuntime.MessageInspectors.Add(
                 new CorsEnabledMessageInspector(corsEnabledOperations));
         }

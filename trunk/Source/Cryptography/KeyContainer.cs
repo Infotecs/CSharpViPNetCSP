@@ -81,7 +81,7 @@ namespace Infotecs.Cryptography
         /// </summary>
         /// <param name="keyContainerName">Название контейнера.</param>
         /// <returns>True - контейнер существует, иначе False.</returns>
-        public static bool IsExist(string keyContainerName)
+        public static bool Exist(string keyContainerName)
         {
             try
             {

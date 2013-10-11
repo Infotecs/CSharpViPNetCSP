@@ -55,9 +55,9 @@ namespace UnitTests.Cryptography
         ///     Проверка существования ключевого контейнера.
         /// </summary>
         [Test]
-        public void IsExist_KeyContainerAbsent_False()
+        public void Exist_KeyContainerAbsent_False()
         {
-            bool exist = KeyContainer.IsExist(Guid.NewGuid().ToString());
+            bool exist = KeyContainer.Exist(Guid.NewGuid().ToString());
             Assert.IsFalse(exist);
         }
 
@@ -65,9 +65,9 @@ namespace UnitTests.Cryptography
         ///     Проверка существования ключевого контейнера.
         /// </summary>
         [Test]
-        public void IsExist_KeyContainerExist_True()
+        public void Exist_KeyContainerExist_True()
         {
-            bool exist = KeyContainer.IsExist(Container);
+            bool exist = KeyContainer.Exist(Container);
             Assert.IsTrue(exist);
         }
 

@@ -11,7 +11,7 @@ namespace Infotecs.Shellma.Cors
     /// <summary>
     ///     ServiceHost с поддержкой Cors.
     /// </summary>
-    internal class CorsEnabledServiceHost : ServiceHost
+    internal sealed class CorsEnabledServiceHost : ServiceHost
     {
         private readonly Type contractType;
 
@@ -42,20 +42,29 @@ namespace Infotecs.Shellma.Cors
         protected override void OnOpening()
         {
             ServiceEndpoint endpoint = AddServiceEndpoint(contractType, new WebHttpBinding(), string.Empty);
-
-            List<OperationDescription> corsEnabledOperations = endpoint.Contract.Operations
-                                                                       .Where(
-                                                                           x =>
-                                                                               x.Behaviors.Find<CorsEnabledAttribute>()
-                                                                                   != null)
-                                                                       .ToList();
-
-            AddPreflightOperations(endpoint, corsEnabledOperations);
-
+            RegisterPreflightOperations(endpoint);
             endpoint.Behaviors.Add(new WebHttpBehavior());
             endpoint.Behaviors.Add(new EnableCorsEndpointBehavior());
 
             base.OnOpening();
+        }
+
+        private static OperationDescription CreatePreflightOperation(OperationDescription operation)
+        {
+            ContractDescription contract = operation.DeclaringContract;
+            var preflightOperation = new OperationDescription(operation.Name + CorsConstants.PreflightSuffix, contract);
+            var inputMessage = new MessageDescription(
+                operation.Messages[0].Action + CorsConstants.PreflightSuffix, MessageDirection.Input);
+            inputMessage.Body.Parts.Add(
+                new MessagePartDescription("input", contract.Namespace) { Index = 0, Type = typeof(Message) });
+            preflightOperation.Messages.Add(inputMessage);
+            var outputMessage = new MessageDescription(
+                operation.Messages[1].Action + CorsConstants.PreflightSuffix, MessageDirection.Output);
+            outputMessage.Body.ReturnValue = new MessagePartDescription(
+                preflightOperation.Name + "Return", contract.Namespace) { Type = typeof(Message) };
+            preflightOperation.Messages.Add(outputMessage);
+
+            return preflightOperation;
         }
 
         private static Type GetContractType(Type serviceType)
@@ -66,8 +75,8 @@ namespace Infotecs.Shellma.Cors
             }
 
             Type[] possibleContractTypes = serviceType.GetInterfaces()
-                                                      .Where(HasServiceContract)
-                                                      .ToArray();
+                .Where(HasServiceContract)
+                .ToArray();
 
             switch (possibleContractTypes.Length)
             {
@@ -84,84 +93,30 @@ namespace Infotecs.Shellma.Cors
             }
         }
 
+        private static string GetHttpMethod(OperationDescription operation)
+        {
+            var originalWia = operation.Behaviors.Find<WebInvokeAttribute>();
+            return originalWia != null && originalWia.Method != null
+                ? originalWia.Method
+                : "POST";
+        }
+
+        private static string GetPreflightUriTemplate(OperationDescription operation)
+        {
+            var originalWia = operation.Behaviors.Find<WebInvokeAttribute>();
+            if (originalWia != null && originalWia.UriTemplate != null)
+            {
+                return NormalizeTemplate(originalWia.UriTemplate);
+            }
+            return operation.Name;
+        }
+
         private static bool HasServiceContract(Type type)
         {
             return Attribute.IsDefined(type, typeof(ServiceContractAttribute), false);
         }
 
-        private void AddPreflightOperations(ServiceEndpoint endpoint, IEnumerable<OperationDescription> corsOperations)
-        {
-            var uriTemplates = new Dictionary<string, PreflightOperationBehavior>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (OperationDescription operation in corsOperations)
-            {
-                if (operation.Behaviors.Find<WebGetAttribute>() != null)
-                {
-                    // no need to add preflight operation for GET requests
-                    continue;
-                }
-
-                if (operation.IsOneWay)
-                {
-                    // no support for 1-way messages
-                    continue;
-                }
-
-                string originalUriTemplate;
-                var originalWia = operation.Behaviors.Find<WebInvokeAttribute>();
-
-                if (originalWia != null && originalWia.UriTemplate != null)
-                {
-                    originalUriTemplate = NormalizeTemplate(originalWia.UriTemplate);
-                }
-                else
-                {
-                    originalUriTemplate = operation.Name;
-                }
-
-                string originalMethod = originalWia != null && originalWia.Method != null ? originalWia.Method : "POST";
-
-                if (uriTemplates.ContainsKey(originalUriTemplate))
-                {
-                    // there is already an OPTIONS operation for this URI, we can reuse it
-                    PreflightOperationBehavior operationBehavior = uriTemplates[originalUriTemplate];
-                    operationBehavior.AddAllowedMethod(originalMethod);
-                }
-                else
-                {
-                    ContractDescription contract = operation.DeclaringContract;
-                    var preflightOperation = new OperationDescription(
-                        operation.Name + CorsConstants.PreflightSuffix, contract);
-                    var inputMessage =
-                        new MessageDescription(
-                            operation.Messages[0].Action + CorsConstants.PreflightSuffix, MessageDirection.Input);
-                    inputMessage.Body.Parts.Add(
-                        new MessagePartDescription("input", contract.Namespace) { Index = 0, Type = typeof(Message) });
-                    preflightOperation.Messages.Add(inputMessage);
-                    var outputMessage =
-                        new MessageDescription(
-                            operation.Messages[1].Action + CorsConstants.PreflightSuffix, MessageDirection.Output);
-                    outputMessage.Body.ReturnValue = new MessagePartDescription(
-                        preflightOperation.Name + "Return", contract.Namespace) { Type = typeof(Message) };
-                    preflightOperation.Messages.Add(outputMessage);
-
-                    var wia = new WebInvokeAttribute();
-                    wia.UriTemplate = originalUriTemplate;
-                    wia.Method = "OPTIONS";
-
-                    preflightOperation.Behaviors.Add(wia);
-                    preflightOperation.Behaviors.Add(new DataContractSerializerOperationBehavior(preflightOperation));
-                    var preflightOperationBehavior = new PreflightOperationBehavior(preflightOperation);
-                    preflightOperationBehavior.AddAllowedMethod(originalMethod);
-                    preflightOperation.Behaviors.Add(preflightOperationBehavior);
-                    uriTemplates.Add(originalUriTemplate, preflightOperationBehavior);
-
-                    contract.Operations.Add(preflightOperation);
-                }
-            }
-        }
-
-        private string NormalizeTemplate(string uriTemplate)
+        private static string NormalizeTemplate(string uriTemplate)
         {
             int queryIndex = uriTemplate.IndexOf('?');
             if (queryIndex >= 0)
@@ -182,6 +137,64 @@ namespace Infotecs.Shellma.Cors
             }
 
             return uriTemplate;
+        }
+
+        private static PreflightOperationBehavior RegisterPreflightOperation(OperationDescription operation)
+        {
+            OperationDescription preflightOperation = CreatePreflightOperation(operation);
+
+            preflightOperation.Behaviors.Add(new DataContractSerializerOperationBehavior(preflightOperation));
+
+            string originalUriTemplate = GetPreflightUriTemplate(operation);
+            var wia = new WebInvokeAttribute { UriTemplate = originalUriTemplate, Method = "OPTIONS" };
+            preflightOperation.Behaviors.Add(wia);
+
+            string originalMethod = GetHttpMethod(operation);
+            var preflightOperationBehavior = new PreflightOperationBehavior();
+            preflightOperationBehavior.AddAllowedMethod(originalMethod);
+            preflightOperation.Behaviors.Add(preflightOperationBehavior);
+
+            operation.DeclaringContract.Operations.Add(preflightOperation);
+
+            return preflightOperationBehavior;
+        }
+
+        private static void RegisterPreflightOperations(ServiceEndpoint endpoint)
+        {
+            List<OperationDescription> corsEnabledOperations = endpoint.Contract.Operations
+                .Where(x => x.Behaviors.Find<CorsEnabledAttribute>() != null)
+                .ToList();
+            var uriTemplates = new Dictionary<string, PreflightOperationBehavior>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (OperationDescription operation in corsEnabledOperations)
+            {
+                if (operation.Behaviors.Find<WebGetAttribute>() != null)
+                {
+                    // no need to add preflight operation for GET requests
+                    continue;
+                }
+
+                if (operation.IsOneWay)
+                {
+                    // no support for 1-way messages
+                    continue;
+                }
+
+                string originalUriTemplate = GetPreflightUriTemplate(operation);
+                string originalMethod = GetHttpMethod(operation);
+
+                if (uriTemplates.ContainsKey(originalUriTemplate))
+                {
+                    // there is already an OPTIONS operation for this URI, we can reuse it
+                    PreflightOperationBehavior operationBehavior = uriTemplates[originalUriTemplate];
+                    operationBehavior.AddAllowedMethod(originalMethod);
+                }
+                else
+                {
+                    PreflightOperationBehavior preflightOperationBehavior = RegisterPreflightOperation(operation);
+                    uriTemplates.Add(originalUriTemplate, preflightOperationBehavior);
+                }
+            }
         }
     }
 }

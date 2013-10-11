@@ -8,18 +8,15 @@ namespace Infotecs.Shellma.Cors
     /// <summary>
     ///     PreflightOperationBehavior.
     /// </summary>
-    internal class PreflightOperationBehavior : IOperationBehavior
+    internal sealed class PreflightOperationBehavior : IOperationBehavior
     {
         private readonly List<string> allowedMethods;
-        private OperationDescription preflightOperation;
 
         /// <summary>
         ///     Конструктор.
         /// </summary>
-        /// <param name="preflightOperation">OperationDescription.</param>
-        public PreflightOperationBehavior(OperationDescription preflightOperation)
+        public PreflightOperationBehavior()
         {
-            this.preflightOperation = preflightOperation;
             allowedMethods = new List<string>();
         }
 

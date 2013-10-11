@@ -3,7 +3,7 @@
     /// <summary>
     ///     Постоянные Cors.
     /// </summary>
-    internal class CorsConstants
+    internal static class CorsConstants
     {
         /// <summary>
         ///     Access-Control-Allow-Headers.

@@ -8,7 +8,7 @@ namespace Infotecs.Shellma.Cors
     /// <summary>
     ///     Включает Cors.
     /// </summary>
-    public class CorsEnabledAttribute : Attribute, IOperationBehavior
+    public sealed class CorsEnabledAttribute : Attribute, IOperationBehavior
     {
         /// <summary>
         ///     Добавить Binding.
