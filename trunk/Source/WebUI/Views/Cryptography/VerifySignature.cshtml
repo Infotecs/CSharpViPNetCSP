@@ -4,10 +4,11 @@
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/Layout.cshtml";
 }
-@using (Html.BeginForm("SignHash", "Cryptography", FormMethod.Post, new {id = "verifyForm"}))
+@using (Html.BeginForm("SignHash", "Cryptography", FormMethod.Post, new { id = "verifyForm" }))
 {
-    @Html.HiddenFor(x => x.Hash)
     @Html.HiddenFor(x => x.Text)
+    @Html.HiddenFor(x => x.Hash)
+    @Html.HiddenFor(x => x.HashHex)
     @Html.HiddenFor(x => x.PublicKey)
     @Html.HiddenFor(x => x.Signature)
     @Html.HiddenFor(x => x.IsSignatureValid)
@@ -33,6 +34,10 @@
             <h4 style="word-wrap: break-word;">
                 @Html.DisplayTextFor(x => x.Hash)
             </h4>
+        </div>
+        <div class="col-md-2">Hex вид</div>
+        <div class="col-md-10">
+            @Html.DisplayTextFor(x => x.HashHex)
         </div>
     </div>
     <div class="row well">

@@ -1,0 +1,40 @@
+﻿@model WebUI.Models.ShellmaCertModel
+
+@{
+    ViewBag.Title = "Hash";
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+
+@using (Html.BeginForm("Hash", "Certificate", FormMethod.Post, new { id = "hashForm" }))
+{
+    @Html.HiddenFor(x => x.Hash)
+    @Html.HiddenFor(x => x.HashHex)
+    
+    <div class="page-header">
+        <h1>Вычисление хеша</h1>
+    </div>
+    <p class="lead">Вычисление хеш-функции (сертификат)</p>
+    <div class="row">
+        <div class="col-md-8">
+            @Html.TextAreaFor(x => x.Text, new{ rows=7, placeholder="Введите текст...", style="width:100%"})
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <button type="submit" class="btn btn-primary btn-lg" style="float: right; margin: 20px 0">Вычислить</button>
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+    $(function() {
+        $("#hashForm").submit(function () {
+            var text = $("#Text").val();
+            var service = new ShellmaServiceProvider();
+            var hash = service.ComputeHash(text);
+            $('#Hash').val(hash);
+            var hashHex = service.ConvertToHex(hash);
+            $('#HashHex').val(hashHex);
+        });
+    });
+</script>

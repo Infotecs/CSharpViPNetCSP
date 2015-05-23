@@ -75,6 +75,19 @@ namespace Infotecs.Cryptography
         }
 
         /// <summary>
+        ///     Получить сертификат для конкретного ключа
+        /// </summary>
+        /// <returns></returns>
+        public static byte[] ExportCertificateData(string keyContainerName)
+        {
+            using (var container = new KeyContainer())
+            {
+                container.AcquireContext(keyContainerName, ProviderName, ProviderType, 0);
+                return container.ExportCertificateData();
+            }
+        }
+
+        /// <summary>
         ///     Провекра наличия контейнера.
         /// </summary>
         /// <param name="keyContainerName">Название контейнера.</param>
@@ -140,7 +153,7 @@ namespace Infotecs.Cryptography
             using (var container = new KeyContainer())
             {
                 container.AcquireContext(null, ProviderName, ProviderType, Constants.CryptVerifycontext);
-                using (KeyContext keyContext = container.ImportKey(null, publicKey, publicKey.Length, 0))
+                using (KeyContext keyContext = container.ImportKey(null, publicKey, 0))
                 {
                     using (HashContext hashContext =
                         container.CreateHash(null, Constants.CpcspHashId, 0))
@@ -148,6 +161,47 @@ namespace Infotecs.Cryptography
                         hashContext.AddData(data, 0);
                         return keyContext.VerifySignature(signature, hashContext, 0);
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Проверка подписи.
+        /// </summary>
+        /// <param name="signature">Подпись.</param>
+        /// <param name="data">Данные.</param>
+        /// <param name="certificateData">Сертификат.</param>
+        /// <returns>True - провека прошла успешно, иначе False.</returns>
+        public static bool VerifyCertificate(byte[] signature, byte[] data, byte[] certificateData)
+        {
+            using (var container = new KeyContainer())
+            {
+                container.AcquireContext(null, ProviderName, ProviderType, Constants.CryptVerifycontext);
+                using (KeyContext keyContext = container.ImportSertificate(certificateData))
+                {
+                    using (HashContext hashContext =
+                        container.CreateHash(null, Constants.CpcspHashId, 0))
+                    {
+                        hashContext.AddData(data, 0);
+                        return keyContext.VerifySignature(signature, hashContext, 0);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Возвращает открытый ключ сертификата
+        /// </summary>
+        /// <param name="certificateData">данные сертификата</param>
+        /// <returns></returns>
+        public static byte[] GetCertificatePublicKey(byte[] certificateData)
+        {
+            using (var container = new KeyContainer())
+            {
+                container.AcquireContext(null, ProviderName, ProviderType, Constants.CryptVerifycontext);
+                using (KeyContext keyContext = container.ImportSertificate(certificateData))
+                {
+                    return keyContext.ExportPublicKey();
                 }
             }
         }
@@ -165,6 +219,19 @@ namespace Infotecs.Cryptography
         }
 
         /// <summary>
+        ///     Получить сертификат для конкретного ключа
+        /// </summary>
+        /// <returns></returns>
+        public byte[] ExportCertificateData()
+        {
+            using (KeyContext keyContext = GetUserKey())
+            {
+                var rawDataCertificate = keyContext.GetSertificateData();
+                return rawDataCertificate;
+            }
+        }
+
+        /// <summary>
         ///     Подпись хэша.
         /// </summary>
         /// <param name="hash">Хэш.</param>
@@ -176,60 +243,6 @@ namespace Infotecs.Cryptography
             {
                 hashContext.SetHashParameter(Constants.HpHashValue, hash, 0);
                 return hashContext.SignHash(keyNumber, 0);
-            }
-        }
-
-        /// <summary>
-        ///     Получить сертификат для конкретного ключа
-        /// </summary>
-        /// <returns></returns>
-        public byte[] GetCertificateRawData()
-        {
-            using (var container = new KeyContainer())
-            {
-                container.AcquireContext(null, ProviderName, ProviderType, Constants.CryptVerifycontext);
-                using (KeyContext keyContext = GetUserKey())
-                {
-                    var rawDataCertificate = keyContext.GetSertificateData();
-                    return rawDataCertificate;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Возвращает открытый ключ сертификата
-        /// </summary>
-        /// <param name="certificateRawData">данные сертификата</param>
-        /// <returns></returns>
-        public byte[] GetCertificatePublicKey(byte[] certificateRawData)
-        {
-            // создаём объект сертификата
-            var hCertContext = CryptoApi.CertCreateCertificateContext(
-                Constants.MY_ENCODING_TYPE, certificateRawData, certificateRawData.Length);
-
-            //Получаем указатель на SubjectPublicKeyInfo
-            var certContextStruct = (Constants.CERT_CONTEXT)
-                Marshal.PtrToStructure(hCertContext, typeof(Constants.CERT_CONTEXT));
-            var pCertInfo = certContextStruct.pCertInfo;
-
-            // магия. для x32 и x64 сборок структуры разных размеров
-            var certInfoStruct = (Constants.CERT_INFO)Marshal.PtrToStructure(pCertInfo, typeof(Constants.CERT_INFO));
-            IntPtr subjectPublicKeyInfo = Marshal.AllocHGlobal(Marshal.SizeOf(certInfoStruct.SubjectPublicKeyInfo));
-            Marshal.StructureToPtr(certInfoStruct.SubjectPublicKeyInfo, subjectPublicKeyInfo, false);
-
-            IntPtr keyHandle = IntPtr.Zero;
-            if (!CryptoApi.CryptImportPublicKeyInfo(
-                this.cspHandler, // hCryptProv
-                Constants.MY_ENCODING_TYPE,
-                subjectPublicKeyInfo,
-                ref keyHandle))
-            {
-                throw new Win32Exception();
-            }
-
-            using (var keyCont = new KeyContext(keyHandle))
-            {
-                return keyCont.ExportPublicKey();
             }
         }
 
@@ -303,7 +316,7 @@ namespace Infotecs.Cryptography
             return keyPairContext;
         }
 
-        private KeyContext ImportKey(KeyContext protectionKeyContext, byte[] keyData, int keyDataLength, int flags)
+        private KeyContext ImportKey(KeyContext protectionKeyContext, byte[] keyData, int flags)
         {
             IntPtr protectionKeyHandler = IntPtr.Zero;
 
@@ -313,9 +326,35 @@ namespace Infotecs.Cryptography
             }
 
             IntPtr keyHandler = IntPtr.Zero;
-            if (
-                !CryptoApi.CryptImportKey(
-                    cspHandler, keyData, keyDataLength, protectionKeyHandler, flags, ref keyHandler))
+            if (!CryptoApi.CryptImportKey(cspHandler, keyData, keyData.Length,
+                protectionKeyHandler, flags, ref keyHandler))
+            {
+                throw new Win32Exception();
+            }
+
+            var keyContext = new KeyContext(keyHandler);
+            return keyContext;
+        }
+
+        private KeyContext ImportSertificate(byte[] certificateData)
+        {
+            // создаём объект сертификата
+            var hCertContext = CryptoApi.CertCreateCertificateContext(
+                Constants.MyEncodingType, certificateData, certificateData.Length);
+
+            //Получаем указатель на SubjectPublicKeyInfo
+            var certContextStruct = (Constants.CertContext)
+                Marshal.PtrToStructure(hCertContext, typeof(Constants.CertContext));
+            var pCertInfo = certContextStruct.pCertInfo;
+
+            // магия. для x32 и x64 сборок структуры разных размеров
+            var certInfoStruct = (Constants.CertInfo)Marshal.PtrToStructure(pCertInfo, typeof(Constants.CertInfo));
+            IntPtr subjectPublicKeyInfo = Marshal.AllocHGlobal(Marshal.SizeOf(certInfoStruct.SubjectPublicKeyInfo));
+            Marshal.StructureToPtr(certInfoStruct.SubjectPublicKeyInfo, subjectPublicKeyInfo, false);
+
+            IntPtr keyHandler = IntPtr.Zero;
+            if (!CryptoApi.CryptImportPublicKeyInfo(cspHandler, Constants.MyEncodingType,
+                subjectPublicKeyInfo, ref keyHandler))
             {
                 throw new Win32Exception();
             }

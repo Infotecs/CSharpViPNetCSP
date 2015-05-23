@@ -10,6 +10,11 @@
         /// </summary>
         public string Hash { get; set; }
         /// <summary>
+        ///     Хеш в Hex кодировке
+        /// </summary>
+        public string HashHex { get; set; }
+
+        /// <summary>
         ///     Подпись верна.
         /// </summary>
         public bool? IsSignatureValid { get; set; }

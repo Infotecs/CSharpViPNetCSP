@@ -8,6 +8,7 @@
 {
     @Html.HiddenFor(x => x.Text)
     @Html.HiddenFor(x => x.Hash)
+    @Html.HiddenFor(x => x.HashHex)
     @Html.HiddenFor(x => x.Signature)
     @Html.HiddenFor(x => x.PublicKey)
     <div class="page-header">
@@ -33,6 +34,10 @@
                 @Html.DisplayTextFor(x => x.Hash)
             </h4>
         </div>
+        <div class="col-md-2">Hex вид</div>
+        <div class="col-md-10">
+            @Html.DisplayTextFor(x => x.HashHex)
+        </div>
     </div>
     <div class="row">
         <div class="col-md-12">
@@ -46,6 +51,7 @@
         $("#signForm").submit(function() {
             var hash = $("#Hash").val();
             var service = new ShellmaServiceProvider();
+
             var signature = service.SignHash(hash);
             $('#Signature').val(signature);
 

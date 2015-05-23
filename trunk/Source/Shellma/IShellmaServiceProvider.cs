@@ -24,6 +24,17 @@ namespace Infotecs.Shellma
         string ComputeHash(string data);
 
         /// <summary>
+        ///     Конвертирует строку в Hex представление
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [WebInvoke(Method = WebRequestMethods.Http.Post, ResponseFormat = WebMessageFormat.Json,
+            RequestFormat = WebMessageFormat.Json)]
+        [OperationContract]
+        [CorsEnabled]
+        string ConvertToHex(string data);
+
+        /// <summary>
         ///     Экспорт открытого ключа.
         /// </summary>
         /// <returns>Открытый ключ.</returns>
@@ -54,5 +65,26 @@ namespace Infotecs.Shellma
         [OperationContract]
         [CorsEnabled]
         bool VerifySignature(VerifySignatureRequest request);
+
+        /// <summary>
+        ///     Экспорт сертификата из контейнера.
+        /// </summary>
+        [WebInvoke(Method = WebRequestMethods.Http.Post, ResponseFormat = WebMessageFormat.Json,
+            RequestFormat = WebMessageFormat.Json)]
+        [OperationContract]
+        [CorsEnabled]
+        string ExportCertificate();
+
+
+        /// <summary>
+        ///     Проверка подписи.
+        /// </summary>
+        /// <param name="request">Данные.</param>
+        /// <returns>True - провека прошла успешно, иначе False.</returns>
+        [WebInvoke(Method = WebRequestMethods.Http.Post, ResponseFormat = WebMessageFormat.Json,
+            RequestFormat = WebMessageFormat.Json)]
+        [OperationContract]
+        [CorsEnabled]
+        bool VerifyCertificate(VerifySignatureCertRequest request);
     }
 }

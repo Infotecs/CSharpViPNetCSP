@@ -137,14 +137,9 @@ namespace UnitTests.Cryptography
         }
 
         [Test]
-        public void GetCertificate()
+        public void ExportCertificate()
         {
-            byte[] certificate;
-            using (KeyContainer keyContainer = KeyContainer.Open(ContainerSert, ContainerPassword))
-            {
-                certificate = keyContainer.GetCertificateRawData();
-            }
-
+            byte[] certificate = KeyContainer.ExportCertificateData(ContainerSert);
             CollectionAssert.IsNotEmpty(certificate);
         }
 
@@ -153,8 +148,8 @@ namespace UnitTests.Cryptography
         {
             using (KeyContainer keyContainer = KeyContainer.Open(ContainerSert, ContainerPassword))
             {
-                var certificateRawData = keyContainer.GetCertificateRawData();
-                var publicKeyFromCert = keyContainer.GetCertificatePublicKey(certificateRawData);
+                var certificateRawData = keyContainer.ExportCertificateData();
+                var publicKeyFromCert = KeyContainer.GetCertificatePublicKey(certificateRawData);
 
                 var containerKey = keyContainer.ExportPublicKey();
 
@@ -177,21 +172,10 @@ namespace UnitTests.Cryptography
             using (KeyContainer keyContainer = KeyContainer.Open(ContainerSert, ContainerPassword))
             {
                 signature = keyContainer.SignHash(hash, KeyNumber.Signature);
-                certificateRawData = keyContainer.GetCertificateRawData();
+                certificateRawData = keyContainer.ExportCertificateData();
             }
 
-            // использование другого контейнера с другими ключами
-            byte[] publicKey;
-            using (KeyContainer keyContainer = KeyContainer.Open(Container, ContainerPassword))
-            {
-                publicKey = keyContainer.GetCertificatePublicKey(certificateRawData);
-                var publicKeyAlternate = keyContainer.ExportPublicKey();
-
-                // ключи должны отличатся
-                Assert.AreNotEqual(publicKey, publicKeyAlternate);
-            }
-
-            bool result = KeyContainer.VerifySignature(signature, data, publicKey);
+            bool result = KeyContainer.VerifyCertificate(signature, data, certificateRawData);
             Assert.IsTrue(result);
         }
 

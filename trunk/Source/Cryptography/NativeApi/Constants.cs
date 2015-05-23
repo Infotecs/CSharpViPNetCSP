@@ -26,22 +26,22 @@ namespace Infotecs.Cryptography.NativeApi
         // for setting Secure Channel certificate data (PCT1)
         public const int KpCertificate = 26;
 
-        public const int X509_ASN_ENCODING = 0x00000001;
-        public const int PKCS_7_ASN_ENCODING = 0x00010000;
+        public const int X509AsnEncoding = 0x00000001;
+        public const int Pkcs7AsnEncoding = 0x00010000;
 
-        public const int MY_ENCODING_TYPE = PKCS_7_ASN_ENCODING | X509_ASN_ENCODING;
+        public const int MyEncodingType = Pkcs7AsnEncoding | X509AsnEncoding;
 
         #region структуры для сертификатов
 
         [StructLayout(LayoutKind.Sequential)]
-        internal struct CERT_PUBLIC_KEY_INFO
+        internal struct CertPublicKeyInfo
         {
-            public CRYPT_ALGORITHM_IDENTIFIER Algorithm;
-            public CRYPT_BIT_BLOB PublicKey;
+            public CryptAlgorithmIdentifier Algorithm;
+            public CryptBitBlob PublicKey;
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct CERT_CONTEXT
+        public struct CertContext
         {
             public uint dwCertEncodingType;
             public IntPtr pbCertEncoded;
@@ -52,40 +52,40 @@ namespace Infotecs.Cryptography.NativeApi
 
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct CRYPTOAPI_BLOB //x86 - 8, x64 - 16
+        public struct CryptoapiBlob //x86 - 8, x64 - 16
         {
             public Int32 cbData;
             public IntPtr pbData;
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        internal struct CERT_INFO
+        internal struct CertInfo
         {
             public uint dwVersion; //4
-            public CRYPTOAPI_BLOB SerialNumber; //8 - 16
-            public CRYPT_ALGORITHM_IDENTIFIER SignatureAlgorithm; //12 - 16
-            public CRYPTOAPI_BLOB Issuer; //8 - 16
+            public CryptoapiBlob SerialNumber; //8 - 16
+            public CryptAlgorithmIdentifier SignatureAlgorithm; //12 - 16
+            public CryptoapiBlob Issuer; //8 - 16
             public System.Runtime.InteropServices.ComTypes.FILETIME NotBefore; //8
             public System.Runtime.InteropServices.ComTypes.FILETIME NotAfter; //8
-            public CRYPTOAPI_BLOB Subject; //8 - 16
-            public CERT_PUBLIC_KEY_INFO SubjectPublicKeyInfo; //24 - 40
-            public CRYPT_BIT_BLOB IssuerUniqueId; //12 - 24
-            public CRYPT_BIT_BLOB SubjectUniqueId; //12 - 24
+            public CryptoapiBlob Subject; //8 - 16
+            public CertPublicKeyInfo SubjectPublicKeyInfo; //24 - 40
+            public CryptBitBlob IssuerUniqueId; //12 - 24
+            public CryptBitBlob SubjectUniqueId; //12 - 24
             public uint cExtension; //4
             public IntPtr rgExtension; //4 - 8
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        internal struct CRYPT_ALGORITHM_IDENTIFIER //12 - 16
+        internal struct CryptAlgorithmIdentifier //12 - 16
         {
             [MarshalAs(UnmanagedType.LPStr)]
             public String pszObjId; //4
 
-            public CRYPTOAPI_BLOB Parameters; //8
+            public CryptoapiBlob Parameters; //8
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        internal struct CRYPT_BIT_BLOB //12-24
+        internal struct CryptBitBlob //12-24
         {
             public Int32 cbData; //4
             public IntPtr pbData; //4-8

@@ -18,7 +18,7 @@ namespace Infotecs.Shellma
     [AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Allowed)]
     public sealed class ServiceProvider : IShellmaServiceProvider
     {
-        private const string Container = @"DataStore\TestContainer";
+        private const string Container = @".\DataStore\UnitTestContainer";
         private const string ContainerPassword = "123123";
         private static readonly Logger log = LogManager.GetCurrentClassLogger();
 
@@ -36,6 +36,17 @@ namespace Infotecs.Shellma
             }
             byte[] dataValue = Encoding.UTF8.GetBytes(data);
             return Convert.ToBase64String(KeyContainer.ComputeHash(dataValue));
+        }
+
+        /// <summary>
+        ///     Конвертирует строку в Hex представление
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public string ConvertToHex(string data)
+        {
+            byte[] dataValue = Convert.FromBase64String(data);
+            return HexEncoding.ToString(dataValue);
         }
 
         /// <summary>
@@ -81,6 +92,30 @@ namespace Infotecs.Shellma
             byte[] dataValue = Encoding.UTF8.GetBytes(request.Data);
             byte[] publicKeyValue = Convert.FromBase64String(request.PublicKey);
             return KeyContainer.VerifySignature(signatureValue, dataValue, publicKeyValue);
+        }
+
+        /// <summary>
+        ///     Экспорт сертификата из контейнера.
+        /// </summary>
+        public string ExportCertificate()
+        {
+            log.Debug("ExportCertificateData: keyContainerName: {0}", Container);
+            return Convert.ToBase64String(KeyContainer.ExportCertificateData(Container));
+        }
+
+        /// <summary>
+        ///     Проверка подписи.
+        /// </summary>
+        /// <param name="request">Данные.</param>
+        /// <returns>True - провека прошла успешно, иначе False.</returns>
+        public bool VerifyCertificate(VerifySignatureCertRequest request)
+        {
+            log.Debug("VerifySignatureSert: {0}", request);
+            byte[] signatureValue = Convert.FromBase64String(request.Signature);
+            byte[] dataValue = Encoding.UTF8.GetBytes(request.Data);
+            byte[] certificateValue = Convert.FromBase64String(request.Certificate);
+
+            return KeyContainer.VerifyCertificate(signatureValue, dataValue, certificateValue);
         }
     }
 }

@@ -111,10 +111,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\CryptographyController.cs" />
+    <Compile Include="Controllers\CertificateController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\ShellmaModel.cs" />
+    <Compile Include="Models\ShellmaCertModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -150,6 +152,9 @@
     <Content Include="Views\Shared\Layout.cshtml" />
     <Content Include="Views\Cryptography\SignHash.cshtml" />
     <Content Include="Views\Cryptography\VerifySignature.cshtml" />
+    <Content Include="Views\Certificate\Hash.cshtml" />
+    <Content Include="Views\Certificate\SignHash.cshtml" />
+    <Content Include="Views\Certificate\VerifySignature.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
