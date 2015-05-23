@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="UTF-8"?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+<S:Header>
+<wsse:Security S:actor="http://smev.gosuslugi.ru/actors/smev" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+<wsse:BinarySecurityToken EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3" wsu:Id="SenderCertificate">MIIBjzCCAT6gAwIBAgIFANud06gwCAYGKoUDAgIDMDExCzAJBgNVBAYTAlJVMRIwEAYDVQQKEwlD
+cnlwdG9Qcm8xDjAMBgNVBAMTBUFsaWFzMB4XDTEyMDgxNTEwNTkzMVoXDTEzMDgxNTEwNTkzMVow
+MTELMAkGA1UEBhMCUlUxEjAQBgNVBAoTCUNyeXB0b1BybzEOMAwGA1UEAxMFQWxpYXMwYzAcBgYq
+hQMCAhMwEgYHKoUDAgIkAAYHKoUDAgIeAQNDAARA+0eVNtInsEh0iywTm6JCHePG9uDu87zDmIfX
+DV2KXPoR2gh0F5oE80/S6yaFFjy4f3aq+Q4urwjb/PNeuVVfxqM7MDkwDgYDVR0PAQH/BAQDAgPo
+MBMGA1UdJQQMMAoGCCsGAQUFBwMCMBIGA1UdEwEB/wQIMAYBAf8CAQUwCAYGKoUDAgIDA0EA+jXa
+M8cqxjSEhx1JJa+z9Jy5ogC5n23U1TVubdrsV+YOuSi8+FPsaqBG5JeC8WiyW8uk/EKoiROQr+5Q
+sk4EVA==</wsse:BinarySecurityToken>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#gostr34102001-gostr3411"/><Reference URI="#body"><Transforms><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#gostr3411"/><DigestValue>T1akbYnizAjRMutqfoZv3rawvhKP4fEBMhM+YIYIz8w=</DigestValue></Reference></SignedInfo><SignatureValue>h+mh1E6iMAsdli+BFXTZWO69ZkYbZA4IWQ5SIJIpRq10qXafE55J1se31UH6kkKc47jhDjgBUgXH
+aaUIZGOVmQ==</SignatureValue><KeyInfo><wsse:SecurityTokenReference><wsse:Reference URI="#SenderCertificate" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3"/></wsse:SecurityTokenReference></KeyInfo></Signature></wsse:Security>
+</S:Header>
+<S:Body wsu:Id="body">
+<!-- Здесь идёт тело запроса-->
+</S:Body>
+</S:Envelope>

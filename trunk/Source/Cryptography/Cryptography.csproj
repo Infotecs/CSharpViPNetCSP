@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HashContext.cs" />
+    <Compile Include="HexEncoding.cs" />
     <Compile Include="KeyContainer.cs" />
     <Compile Include="KeyContext.cs" />
     <Compile Include="NativeApi\Constants.cs" />
