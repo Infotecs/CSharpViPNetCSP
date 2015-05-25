@@ -1,0 +1,62 @@
+﻿@model WebUI.Models.ShellmaCertModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+@using (Html.BeginForm("SignHash", "Certificate", FormMethod.Post, new { id = "signForm" }))
+{
+    @Html.HiddenFor(x => x.Text)
+    @Html.HiddenFor(x => x.Hash)
+    @Html.HiddenFor(x => x.HashHex)
+    @Html.HiddenFor(x => x.Signature)
+    @Html.HiddenFor(x => x.Certificate)
+    <div class="page-header">
+        <h1>Вычисление подписи</h1>
+    </div>
+    <p class="lead">Вычисление подписи на хеш (сертификат)</p>
+    <div class="row well">
+        <div class="col-md-2">
+            <h4>Текст</h4>
+        </div>
+        <div class="col-md-10">
+            <h4 style="word-wrap: break-word;">
+                @Html.DisplayTextFor(x => x.Text)
+            </h4>
+        </div>
+    </div>
+    <div class="row well">
+        <div class="col-md-2">
+            <h4>Хеш</h4>
+        </div>
+        <div class="col-md-10">
+            <h4 style="word-wrap: break-word;">
+                @Html.DisplayTextFor(x => x.Hash)
+            </h4>
+        </div>
+        <div class="col-md-2">Hex вид</div>
+        <div class="col-md-10">
+            @Html.DisplayTextFor(x => x.HashHex)
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <button type="submit" class="btn btn-primary btn-lg" style="float: right; margin: 20px 0">Подписать хеш</button>
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+    $(function() {
+        $("#signForm").submit(function() {
+            var hash = $("#Hash").val();
+            var service = new ShellmaServiceProvider();
+
+            var signature = service.SignHash(hash);
+            $('#Signature').val(signature);
+
+            var certificate = service.ExportCertificate();
+            $('#Certificate').val(certificate);
+        });
+    });
+</script>

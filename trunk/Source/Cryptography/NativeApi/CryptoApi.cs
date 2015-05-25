@@ -17,7 +17,7 @@ namespace Infotecs.Cryptography.NativeApi
             int dwFlags
             );
 
-        [DllImport("advapi32.dll", SetLastError = true)]
+        [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool CryptCreateHash(
             IntPtr hProv,
             int algid,
@@ -26,12 +26,12 @@ namespace Infotecs.Cryptography.NativeApi
             ref IntPtr phHash
             );
 
-        [DllImport("advapi32.dll", SetLastError = true)]
+        [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool CryptDestroyKey(
             IntPtr hKey
             );
 
-        [DllImport("advapi32.dll", SetLastError = true)]
+        [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool CryptExportKey(
             IntPtr hKey,
             IntPtr hExpKey,
@@ -41,7 +41,7 @@ namespace Infotecs.Cryptography.NativeApi
             ref int pdwDataLen
             );
 
-        [DllImport("advapi32.dll", SetLastError = true)]
+        [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool CryptGenKey(
             IntPtr hProv,
             int algid,
@@ -49,7 +49,7 @@ namespace Infotecs.Cryptography.NativeApi
             ref IntPtr phKey
             );
 
-        [DllImport("advapi32.dll", SetLastError = true)]
+        [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool CryptGetHashParam(
             IntPtr hHash,
             int dwParam,
@@ -58,14 +58,14 @@ namespace Infotecs.Cryptography.NativeApi
             int dwFlags
             );
 
-        [DllImport("Advapi32.dll", SetLastError = true)]
+        [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool CryptGetUserKey(
             IntPtr hProv,
             int dwKeySpec,
             ref IntPtr phUserKey
             );
 
-        [DllImport("Advapi32.dll", SetLastError = true)]
+        [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool CryptHashData(
             IntPtr hHash,
             byte[] pbData,
@@ -73,7 +73,7 @@ namespace Infotecs.Cryptography.NativeApi
             int dwFlags
             );
 
-        [DllImport("advapi32.dll", SetLastError = true)]
+        [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool CryptImportKey(
             IntPtr hProv,
             byte[] pbData,
@@ -83,13 +83,13 @@ namespace Infotecs.Cryptography.NativeApi
             ref IntPtr phKey
             );
 
-        [DllImport("advapi32.dll", SetLastError = true)]
+        [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool CryptReleaseContext(
             IntPtr hProv,
             int dwFlags
             );
 
-        [DllImport("advapi32.dll", SetLastError = true)]
+        [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool CryptSetHashParam(
             IntPtr hHash,
             int dwParam,
@@ -97,7 +97,7 @@ namespace Infotecs.Cryptography.NativeApi
             int dwFlags
             );
 
-        [DllImport("Advapi32.dll", SetLastError = true)]
+        [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool CryptSetProvParam(
             IntPtr hProv,
             int dwParam,
@@ -105,7 +105,7 @@ namespace Infotecs.Cryptography.NativeApi
             int dwFlags
             );
 
-        [DllImport("Advapi32.dll", SetLastError = true)]
+        [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool CryptSignHash(
             IntPtr hHash,
             int dwKeySpec,
@@ -123,6 +123,30 @@ namespace Infotecs.Cryptography.NativeApi
             IntPtr hPubKey,
             string sDescription,
             int dwFlags
+            );
+
+        [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern bool CryptGetKeyParam(
+            IntPtr hKey,
+            uint dwParam,
+            byte[] pbData,
+            ref uint pdwDataLen,
+            uint dwFlags
+            );
+
+        [DllImport("crypt32.DLL", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern IntPtr CertCreateCertificateContext(
+            int dwCertEncodingType,
+            byte[] pbCertEncoded,
+            int cbCertEncoded
+            );
+
+        [DllImport("crypt32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern bool CryptImportPublicKeyInfo(
+            IntPtr hCryptProv,
+            Int32 dwCertEncodingType,
+            IntPtr pInfo,
+            ref IntPtr phKey
             );
     }
 }

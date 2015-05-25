@@ -64,6 +64,30 @@ namespace Infotecs.Cryptography
         }
 
         /// <summary>
+        ///     Получить сертификат для текущего ключа
+        /// </summary>
+        /// <returns></returns>
+        public byte[] GetSertificateData()
+        {
+            uint gSize = 0;
+
+            // получим размер сертификата
+            if (!CryptoApi.CryptGetKeyParam(handler, Constants.KpCertificate, null, ref gSize, 0))
+            {
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            }
+
+            var byteCertificate = new byte[gSize];
+            // и сам сертификат
+            if (!CryptoApi.CryptGetKeyParam(handler, Constants.KpCertificate, byteCertificate, ref gSize, 0))
+            {
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            }
+
+            return byteCertificate;
+        }
+
+        /// <summary>
         ///     Освобождает ресурсы.
         /// </summary>
         public void Dispose()
