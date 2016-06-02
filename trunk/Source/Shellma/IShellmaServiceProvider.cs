@@ -1,4 +1,7 @@
-﻿using System.Net;
+﻿// Copyright (c) InfoTeCS JSC. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.Net;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using Infotecs.Shellma.Cors;

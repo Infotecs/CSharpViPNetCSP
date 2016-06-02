@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Infotecs.Cryptography")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
+[assembly: AssemblyCompany("Infotecs")]
 [assembly: AssemblyProduct("Infotecs.Cryptography")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2010")]
+[assembly: AssemblyCopyright("Copyright © Infotecs JSC")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
